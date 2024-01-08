@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Hospitals } from 'src/interfaces/hospital.interface';
+import { Hospitals } from 'src/hospitals/interfaces/hospital.interface';
 import { CreateHospitalDto } from './dto/create-hospital.dto';
 import { UpdateHospitalDto } from './dto/update-hospital.dto';
 

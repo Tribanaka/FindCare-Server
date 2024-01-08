@@ -1,4 +1,4 @@
-import { Practioner } from './practioner.interface';
+import { Practioner } from '../../practioners/interfaces/practioner.interface';
 
 export interface Hospitals {
   id: string;
