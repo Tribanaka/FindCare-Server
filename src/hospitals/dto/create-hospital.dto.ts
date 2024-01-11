@@ -1,14 +1,8 @@
+import { Practioner } from 'src/practioners/interfaces/practioner.interface';
+
 export class CreateHospitalDto {
   name: string;
-  location: {
-    state: string;
-    LGA: string;
-    city: string;
-  };
+  state: string;
+  city: string;
   practioners: Practioner[];
 }
-
-type Practioner = {
-  name: string;
-  profession: string;
-};

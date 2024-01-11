@@ -1,4 +1,9 @@
 export interface Practioner {
-  name: string;
+  id: string;
+  firstName: string;
+  lasName: string;
+  email: string;
   profession: string;
+  bio: string;
+  hospital: string;
 }
