@@ -7,10 +7,29 @@ import { PractionersController } from './practioners/practioners.controller';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { User } from './users/user.entity';
 
 @Module({
-  imports: [AuthModule, UsersModule, ConfigModule.forRoot()],
+  imports: [
+    AuthModule,
+    UsersModule,
+    ConfigModule.forRoot(),
+    TypeOrmModule.forRoot({
+      type: 'postgres',
+      host: 'medlink.postgres.database.azure.com',
+      port: 5432,
+      username: 'superfly',
+      password: `${process.env.DB_PASSWORD}`,
+      database: 'test',
+      entities: [User],
+      synchronize: true,
+    }),
+  ],
   controllers: [AppController, HospitalsController, PractionersController],
   providers: [AppService, HospitalsService],
 })
-export class AppModule {}
+export class AppModule {
+  constructor(private dataSource: DataSource) {}
+}
