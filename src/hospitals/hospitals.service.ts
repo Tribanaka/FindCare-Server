@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Hospitals } from 'src/interfaces/hospital.interface';
+import { Hospitals } from 'src/hospitals/interfaces/hospital.interface';
 import { CreateHospitalDto } from './dto/create-hospital.dto';
 import { UpdateHospitalDto } from './dto/update-hospital.dto';
 
@@ -9,46 +9,40 @@ export class HospitalsService {
     {
       id: '1',
       name: 'Standard Hospital',
-      location: {
-        city: 'Minna',
-        state: 'Niger',
-      },
+      city: 'Minna',
+      state: 'Niger',
+
       practioners: [],
     },
     {
       id: '2',
       name: 'Top Medical Hospital',
-      location: {
-        city: 'Minna',
-        state: 'Niger',
-      },
+      city: 'Minna',
+      state: 'Niger',
       practioners: [],
     },
     {
       id: '3',
       name: 'Optimal Family Medical Centre',
-      location: {
-        city: 'Minna',
-        state: 'Niger',
-      },
+      city: 'Minna',
+      state: 'Niger',
+
       practioners: [],
     },
     {
       id: '4',
       name: 'Sent. Idris Ibrahim kuta memorial primary health care center',
-      location: {
-        city: 'Minna',
-        state: 'Niger',
-      },
+      city: 'Minna',
+      state: 'Niger',
+
       practioners: [],
     },
     {
       id: '5',
       name: 'Shiloh Hospital and Diagnostic Center Minna',
-      location: {
-        city: 'Minna',
-        state: 'Niger',
-      },
+      city: 'Minna',
+      state: 'Niger',
+
       practioners: [],
     },
   ];

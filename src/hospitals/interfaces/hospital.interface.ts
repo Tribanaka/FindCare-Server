@@ -1,6 +1,7 @@
 import { Practioner } from 'src/practioners/interfaces/practioner.interface';
 
-export class CreateHospitalDto {
+export interface Hospitals {
+  id: string;
   name: string;
   state: string;
   city: string;
