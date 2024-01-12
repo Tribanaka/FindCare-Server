@@ -1,19 +1,23 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { CreatePractionerDto } from './dto/create-practiitoner.dto';
+import { PractitionersService } from './practitioners.service';
 
 @Controller('practitioners')
 export class PractitionersController {
-  @Post(':id')
-  create(@Param('id') id: string) {
-    return `This action adds a new practitioner to #${id} Hospital`;
-  }
+  constructor(private practitionersService: PractitionersService) {}
 
   @Get()
   findAll() {
-    return 'This action returns all practitioners';
+    return this.practitionersService.findAll();
   }
 
   @Get('id:')
   findOne(@Param('id') id: string) {
     return `This action returns #${id} practitioner`;
+  }
+
+  @Post()
+  create(@Body() CreatePractionerDto: CreatePractionerDto) {
+    return this.practitionersService.create(CreatePractionerDto);
   }
 }

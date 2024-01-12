@@ -1,19 +1,12 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { HospitalsController } from './hospitals/hospitals.controller';
-import { HospitalsService } from './hospitals/hospitals.service';
-import { PractitionersController } from './practitioners/practitioners.controller';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { User } from './users/user.entity';
-import { PractitionersService } from './practitioners/practitioners.service';
 import { PractitionersModule } from './practitioners/practitioners.module';
-import { SchedulesController } from './schedules/schedules.controller';
-import { AppointmentsController } from './appointments/appointments.controller';
 import { SchedulesModule } from './schedules/schedules.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 
@@ -21,6 +14,9 @@ import { AppointmentsModule } from './appointments/appointments.module';
   imports: [
     AuthModule,
     UsersModule,
+    PractitionersModule,
+    SchedulesModule,
+    AppointmentsModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -32,18 +28,9 @@ import { AppointmentsModule } from './appointments/appointments.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    PractitionersModule,
-    SchedulesModule,
-    AppointmentsModule,
   ],
-  controllers: [
-    AppController,
-    HospitalsController,
-    PractitionersController,
-    SchedulesController,
-    AppointmentsController,
-  ],
-  providers: [AppService, HospitalsService, PractitionersService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}

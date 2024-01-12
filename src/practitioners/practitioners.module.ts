@@ -7,6 +7,7 @@ import { PractitionersController } from './practitioners.controller';
 @Module({
   imports: [TypeOrmModule.forFeature([Practitioner])],
   providers: [PractitionersService],
+  exports: [PractitionersService],
   controllers: [PractitionersController],
 })
 export class PractitionersModule {}

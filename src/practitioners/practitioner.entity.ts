@@ -13,6 +13,12 @@ export class Practitioner {
   last_name: string;
 
   @Column()
+  email: string;
+
+  @Column()
+  password: string;
+
+  @Column('text')
   bio: string;
 
   @Column()
