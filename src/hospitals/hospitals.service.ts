@@ -11,39 +11,30 @@ export class HospitalsService {
       name: 'Standard Hospital',
       city: 'Minna',
       state: 'Niger',
-
-      practioners: [],
     },
     {
       id: '2',
       name: 'Top Medical Hospital',
       city: 'Minna',
       state: 'Niger',
-      practioners: [],
     },
     {
       id: '3',
       name: 'Optimal Family Medical Centre',
       city: 'Minna',
       state: 'Niger',
-
-      practioners: [],
     },
     {
       id: '4',
       name: 'Sent. Idris Ibrahim kuta memorial primary health care center',
       city: 'Minna',
       state: 'Niger',
-
-      practioners: [],
     },
     {
       id: '5',
       name: 'Shiloh Hospital and Diagnostic Center Minna',
       city: 'Minna',
       state: 'Niger',
-
-      practioners: [],
     },
   ];
 

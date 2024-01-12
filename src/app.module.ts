@@ -3,13 +3,17 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HospitalsController } from './hospitals/hospitals.controller';
 import { HospitalsService } from './hospitals/hospitals.service';
-import { PractionersController } from './practioners/practioners.controller';
+import { PractitionersController } from './practitioners/practitioners.controller';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { User } from './users/user.entity';
+import { PractitionersService } from './practitioners/practitioners.service';
+import { PractitionersModule } from './practitioners/practitioners.module';
+import { SchedulesController } from './schedules/schedules.controller';
+import { AppointmentsController } from './appointments/appointments.controller';
 
 @Module({
   imports: [
@@ -26,9 +30,16 @@ import { User } from './users/user.entity';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    PractitionersModule,
   ],
-  controllers: [AppController, HospitalsController, PractionersController],
-  providers: [AppService, HospitalsService],
+  controllers: [
+    AppController,
+    HospitalsController,
+    PractitionersController,
+    SchedulesController,
+    AppointmentsController,
+  ],
+  providers: [AppService, HospitalsService, PractitionersService],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) {}
