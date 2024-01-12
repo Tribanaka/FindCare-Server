@@ -37,7 +37,7 @@ export class AuthService {
   }
 
   async signInPractioner(signInDto: SignInDto) {
-    const user = await this.practionersService.findOne(signInDto.email);
+    const user = await this.practionersService.findByEmail(signInDto.email);
 
     if (!user) {
       throw new UnauthorizedException();

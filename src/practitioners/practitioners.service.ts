@@ -16,8 +16,12 @@ export class PractitionersService {
     return this.practitionerRepository.find();
   }
 
-  findOne(email: string): Promise<Practitioner | null> {
+  findByEmail(email: string): Promise<Practitioner | null> {
     return this.practitionerRepository.findOneBy({ email });
+  }
+
+  findById(id: number): Promise<Practitioner> {
+    return this.practitionerRepository.findOneBy({ id });
   }
 
   async create(CreatePractionerDto: CreatePractionerDto) {
