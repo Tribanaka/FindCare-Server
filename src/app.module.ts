@@ -14,6 +14,8 @@ import { PractitionersService } from './practitioners/practitioners.service';
 import { PractitionersModule } from './practitioners/practitioners.module';
 import { SchedulesController } from './schedules/schedules.controller';
 import { AppointmentsController } from './appointments/appointments.controller';
+import { SchedulesModule } from './schedules/schedules.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { AppointmentsController } from './appointments/appointments.controller';
       synchronize: true,
     }),
     PractitionersModule,
+    SchedulesModule,
+    AppointmentsModule,
   ],
   controllers: [
     AppController,

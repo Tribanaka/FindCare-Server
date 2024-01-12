@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Schedule } from 'src/schedules/schedule.entity';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Practitioner {
@@ -16,4 +17,7 @@ export class Practitioner {
 
   @Column()
   specialization: string;
+
+  @OneToMany(() => Schedule, (schedule) => schedule.practitioner)
+  schedules: Schedule[];
 }
