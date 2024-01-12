@@ -14,6 +14,10 @@ export class AuthService {
   async signIn(signInDto: SignInDto) {
     const user = await this.usersService.findOne(signInDto.email);
 
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
     if (!compareSync(signInDto.password, user.password)) {
       throw new UnauthorizedException();
     }
