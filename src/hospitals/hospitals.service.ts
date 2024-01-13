@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateHospitalDto } from './dto/create-hospital.dto';
 import { UpdateHospitalDto } from './dto/update-hospital.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -13,6 +13,16 @@ export class HospitalsService {
   ) {}
 
   async create(createHospitalDto: CreateHospitalDto) {
+    const hospital = await this.hospitalsRepository.findOneBy({
+      name: createHospitalDto.name,
+    });
+
+    if (hospital) {
+      throw new HttpException(
+        'An hospital with this name exist already.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const newHospital = this.hospitalsRepository.create({
       ...createHospitalDto,
     });
