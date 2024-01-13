@@ -14,8 +14,8 @@ export class Appointment {
   @ManyToOne(() => User)
   user: User;
 
-  @ManyToOne(() => Schedule)
-  schedule: Schedule;
+  @Column('date')
+  data: string;
 
   @Column('timestamp')
   startTime: Date;

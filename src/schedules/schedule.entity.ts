@@ -10,10 +10,10 @@ export class Schedule {
   day_of_week: string;
 
   @Column('time')
-  opening_time: string;
+  opening_hour: string;
 
   @Column('time')
-  closing_time: string;
+  closing_hour: string;
 
   @ManyToOne(() => Practitioner)
   practitioner: Practitioner;

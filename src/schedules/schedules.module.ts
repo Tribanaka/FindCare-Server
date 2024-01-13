@@ -10,5 +10,6 @@ import { SchedulesController } from './schedules.controller';
   imports: [PractitionersModule, TypeOrmModule.forFeature([Schedule])],
   providers: [SchedulesService],
   controllers: [SchedulesController],
+  exports: [SchedulesService],
 })
 export class SchedulesModule {}

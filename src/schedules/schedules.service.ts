@@ -20,6 +20,12 @@ export class SchedulesService {
     private practitionersService: PractitionersService,
   ) {}
 
+  findOne(practitioner: Practitioner, dayOfWeek: string) {
+    return this.schedulesRespository.findOne({
+      where: { practitioner, day_of_week: dayOfWeek },
+    });
+  }
+
   async createWeeklySchedule(
     practitionerId: number,
     createScheduleDto: CreateScheduleDto,
@@ -46,8 +52,8 @@ export class SchedulesService {
       const newSchedule = this.schedulesRespository.create({
         practitioner,
         day_of_week: schedule.dayOfWeek,
-        opening_time: schedule.openingTime,
-        closing_time: schedule.closingTime,
+        opening_hour: schedule.openingHour,
+        closing_hour: schedule.closingHour,
       });
 
       return newSchedule;
@@ -86,8 +92,8 @@ export class SchedulesService {
       const newSchedule = this.schedulesRespository.create({
         practitioner,
         day_of_week: schedule.dayOfWeek,
-        opening_time: schedule.openingTime,
-        closing_time: schedule.closingTime,
+        opening_hour: schedule.openingHour,
+        closing_hour: schedule.closingHour,
       });
 
       return newSchedule;
