@@ -1,5 +1,12 @@
+import { Hospital } from 'src/hospitals/hospital.entity';
 import { Schedule } from 'src/schedules/schedule.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity()
 export class Practitioner {
@@ -26,4 +33,7 @@ export class Practitioner {
 
   @OneToMany(() => Schedule, (schedule) => schedule.practitioner)
   schedules: Schedule[];
+
+  @ManyToOne(() => Hospital, (hospital) => hospital.practitioners)
+  hospital: Hospital;
 }

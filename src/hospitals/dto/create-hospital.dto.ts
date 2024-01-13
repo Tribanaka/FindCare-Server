@@ -1,5 +1,6 @@
 export class CreateHospitalDto {
   name: string;
-  state: string;
+  address: string;
   city: string;
+  state: string;
 }

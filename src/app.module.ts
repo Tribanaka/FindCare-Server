@@ -9,6 +9,7 @@ import { DataSource } from 'typeorm';
 import { PractitionersModule } from './practitioners/practitioners.module';
 import { SchedulesModule } from './schedules/schedules.module';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { HospitalsModule } from './hospitals/hospitals.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    HospitalsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

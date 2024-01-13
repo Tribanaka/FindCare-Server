@@ -14,7 +14,7 @@ export class HospitalsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.hospitalsService.findOne(id);
+    return ``;
   }
 
   @Post()
@@ -27,6 +27,6 @@ export class HospitalsController {
     @Param('id') id: string,
     @Body() updateHospitalDto: UpdateHospitalDto,
   ) {
-    return this.hospitalsService.update(id, updateHospitalDto);
+    return ``;
   }
 }
