@@ -1,9 +1,16 @@
-import { Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Practitioner } from './practitioner.entity';
 import { Repository } from 'typeorm';
-import { CreatePractionerDto } from './dto/create-practiitoner.dto';
+import { CreatePractionerDto } from './dto/create-practitioner.dto';
 import { hashSync } from 'bcrypt';
+import { SchedulesService } from 'src/schedules/schedules.service';
 
 @Injectable()
 export class PractitionersService {
@@ -28,6 +35,16 @@ export class PractitionersService {
     const saltRounds = 10;
     const { firstName, lastName, email, password, bio, specialization } =
       CreatePractionerDto;
+
+    const existingPractitioner = await this.practitionerRepository.findOneBy({
+      email,
+    });
+
+    if (existingPractitioner)
+      throw new HttpException(
+        'This email has been used',
+        HttpStatus.BAD_REQUEST,
+      );
 
     const hashedPassword = hashSync(password, saltRounds);
 

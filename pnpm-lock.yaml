@@ -41,6 +41,9 @@ dependencies:
   date-fns:
     specifier: ^3.2.0
     version: 3.2.0
+  date-fns-tz:
+    specifier: ^2.0.0
+    version: 2.0.0(date-fns@3.2.0)
   pg:
     specifier: ^8.11.3
     version: 8.11.3
@@ -2384,6 +2387,14 @@ packages:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+
+  /date-fns-tz@2.0.0(date-fns@3.2.0):
+    resolution: {integrity: sha512-OAtcLdB9vxSXTWHdT8b398ARImVwQMyjfYGkKD2zaGpHseG2UPHbHjXELReErZFxWdSLph3c2zOaaTyHfOhERQ==}
+    peerDependencies:
+      date-fns: '>=2.0.0'
+    dependencies:
+      date-fns: 3.2.0
+    dev: false
 
   /date-fns@3.2.0:
     resolution: {integrity: sha512-E4KWKavANzeuusPi0jUjpuI22SURAznGkx7eZV+4i6x2A+IZxAMcajgkvuDAU1bg40+xuhW1zRdVIIM/4khuIg==}

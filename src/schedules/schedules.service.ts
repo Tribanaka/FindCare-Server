@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Schedule } from './schedule.entity';
 import { Repository } from 'typeorm';
 import { Practitioner } from 'src/practitioners/practitioner.entity';
-import { CreateScheduleDto } from './dto/create-schedule.dto';
+import { CreateSchedulesDto } from './dto/create-schedule.dto';
 import { PractitionersService } from 'src/practitioners/practitioners.service';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
 
@@ -28,7 +28,7 @@ export class SchedulesService {
 
   async createWeeklySchedule(
     practitionerId: number,
-    createScheduleDto: CreateScheduleDto,
+    createSchedulesDto: CreateSchedulesDto,
   ): Promise<Schedule[]> {
     const practitioner =
       await this.practitionersService.findById(practitionerId);
@@ -48,13 +48,20 @@ export class SchedulesService {
       );
     }
 
-    const newSchedules = createScheduleDto.schedules.map((schedule) => {
+    const newSchedules = createSchedulesDto.schedules.map((schedule) => {
       const newSchedule = this.schedulesRespository.create({
         practitioner,
         day_of_week: schedule.dayOfWeek,
         opening_hour: schedule.openingHour,
         closing_hour: schedule.closingHour,
       });
+
+      if (schedule.openingHour >= schedule.closingHour) {
+        throw new HttpException(
+          'Closing hour cannot be less than or equal to opening hour',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
 
       return newSchedule;
     });
