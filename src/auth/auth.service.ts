@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { SignInDto } from './dto/sign-in.dto';
@@ -17,11 +22,17 @@ export class AuthService {
     const user = await this.usersService.findByEmail(signInDto.email);
 
     if (!user) {
-      throw new UnauthorizedException();
+      throw new HttpException(
+        'Email and password do not match.',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     if (!compareSync(signInDto.password, user.password)) {
-      throw new UnauthorizedException();
+      throw new HttpException(
+        'Email and password do not match.',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     const payload = { sub: user.id, email: user.email };

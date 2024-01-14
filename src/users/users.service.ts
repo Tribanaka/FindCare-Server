@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
 import { Repository } from 'typeorm';
@@ -17,6 +17,12 @@ export class UsersService {
   }
 
   findByEmail(email: string): Promise<User | null> {
+    return this.usersRepository.findOne({
+      select: ['id', 'email', 'first_name', 'last_name', 'password'],
+      where: { email },
+    });
+  }
+  findByEmailWithoutPassword(email: string): Promise<User | null> {
     return this.usersRepository.findOneBy({ email });
   }
 
@@ -26,9 +32,18 @@ export class UsersService {
 
   async create(createUserDto: CreateUserDto) {
     const saltRounds = 10;
-    const { firstName, lastName, email, password } = createUserDto;
+    const { firstName, lastName, email } = createUserDto;
 
-    const hashedPassword = hashSync(password, saltRounds);
+    const existingUser = await this.findByEmailWithoutPassword(email);
+
+    if (existingUser) {
+      throw new HttpException(
+        'This email has been used',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const hashedPassword = hashSync(createUserDto.password, saltRounds);
 
     const user = this.usersRepository.create({
       first_name: firstName,
@@ -37,7 +52,9 @@ export class UsersService {
       password: hashedPassword,
     });
 
-    return this.usersRepository.save(user);
+    const { password, ...result } = await this.usersRepository.save(user);
+
+    return result;
   }
 
   async remove(id: number): Promise<void> {

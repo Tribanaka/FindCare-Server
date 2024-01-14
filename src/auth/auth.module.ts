@@ -12,7 +12,7 @@ import { PractitionersModule } from 'src/practitioners/practitioners.module';
     JwtModule.register({
       global: true,
       secret: `${process.env.JWT_SESCRET}`,
-      signOptions: { expiresIn: '60s' },
+      signOptions: { expiresIn: '30d' },
     }),
   ],
   controllers: [AuthController],

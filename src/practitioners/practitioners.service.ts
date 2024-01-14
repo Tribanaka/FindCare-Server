@@ -33,7 +33,7 @@ export class PractitionersService {
 
   async create(CreatePractionerDto: CreatePractionerDto) {
     const saltRounds = 10;
-    const { firstName, lastName, email, password, bio, specialization } =
+    const { firstName, lastName, email, bio, specialization } =
       CreatePractionerDto;
 
     const existingPractitioner = await this.practitionerRepository.findOneBy({
@@ -46,7 +46,7 @@ export class PractitionersService {
         HttpStatus.BAD_REQUEST,
       );
 
-    const hashedPassword = hashSync(password, saltRounds);
+    const hashedPassword = hashSync(CreatePractionerDto.password, saltRounds);
 
     const practitoner = this.practitionerRepository.create({
       first_name: firstName,
@@ -57,6 +57,9 @@ export class PractitionersService {
       specialization: specialization,
     });
 
-    return this.practitionerRepository.save(practitoner);
+    const { password, ...result } =
+      await this.practitionerRepository.save(practitoner);
+
+    return result;
   }
 }
