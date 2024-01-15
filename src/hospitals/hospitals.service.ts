@@ -1,6 +1,5 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateHospitalDto } from './dto/create-hospital.dto';
-import { UpdateHospitalDto } from './dto/update-hospital.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hospital } from './hospital.entity';
 import { Repository } from 'typeorm';
@@ -34,5 +33,7 @@ export class HospitalsService {
     return this.hospitalsRepository.find();
   }
 
-  findOne() {}
+  findOne(id: number) {
+    return this.hospitalsRepository.findOneBy({ id });
+  }
 }

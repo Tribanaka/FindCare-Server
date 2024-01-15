@@ -18,6 +18,7 @@ import { HospitalsModule } from './hospitals/hospitals.module';
     PractitionersModule,
     SchedulesModule,
     AppointmentsModule,
+    HospitalsModule,
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
@@ -29,7 +30,6 @@ import { HospitalsModule } from './hospitals/hospitals.module';
       autoLoadEntities: true,
       synchronize: true,
     }),
-    HospitalsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

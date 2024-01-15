@@ -4,6 +4,7 @@ import {
   IsEmail,
   IsIn,
   IsNotEmpty,
+  IsNumber,
   IsStrongPassword,
   ValidateNested,
 } from 'class-validator';
@@ -45,6 +46,9 @@ export class CreatePractionerDto {
 
   @IsNotEmpty()
   specialization: string;
+
+  @IsNotEmpty()
+  hospitalId: number;
 
   @OneToMany(() => Schedule, (schedule) => schedule.practitioner)
   schedules: Schedule[];
