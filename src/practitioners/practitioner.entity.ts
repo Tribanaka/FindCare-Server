@@ -31,6 +31,9 @@ export class Practitioner {
   @Column()
   specialization: string;
 
+  @Column({ nullable: true })
+  photoUrl: string;
+
   @OneToMany(() => Schedule, (schedule) => schedule.practitioner)
   schedules: Schedule[];
 

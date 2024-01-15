@@ -6,6 +6,13 @@ import { CreatePractionerDto } from './dto/create-practitioner.dto';
 import { hashSync } from 'bcrypt';
 import { HospitalsService } from 'src/hospitals/hospitals.service';
 
+import {
+  UploadApiErrorResponse,
+  UploadApiResponse,
+  v2 as cloudinary,
+} from 'cloudinary';
+import { bufferToStream } from 'src/utils/bufferToStrem';
+
 @Injectable()
 export class PractitionersService {
   constructor(
@@ -44,7 +51,10 @@ export class PractitionersService {
     return this.practitionerRepository.findOneBy({ id });
   }
 
-  async create(createPractionerDto: CreatePractionerDto) {
+  async create(
+    createPractionerDto: CreatePractionerDto,
+    photo: Express.Multer.File,
+  ) {
     const saltRounds = 10;
     const { firstName, lastName, email, bio, specialization, hospitalId } =
       createPractionerDto;
@@ -68,6 +78,20 @@ export class PractitionersService {
       );
     }
 
+    cloudinary.config({
+      cloud_name: 'dpfycjmuw',
+      api_key: `${process.env.CLOUDINARY_KEY}`,
+      api_secret: `${process.env.CLOUDINARY_SECRET}`,
+    });
+
+    const imageResonse = await this.uploadImage(photo);
+
+    if (!imageResonse.secure_url) {
+      throw new HttpException(
+        'Failed to upload Image',
+        HttpStatus.EXPECTATION_FAILED,
+      );
+    }
     const hashedPassword = hashSync(createPractionerDto.password, saltRounds);
 
     const practitoner = this.practitionerRepository.create({
@@ -78,11 +102,25 @@ export class PractitionersService {
       bio: bio,
       specialization: specialization,
       hospital: hospital,
+      photoUrl: imageResonse.secure_url,
     });
 
     const { password, ...result } =
       await this.practitionerRepository.save(practitoner);
 
     return result;
+  }
+
+  async uploadImage(
+    file: Express.Multer.File,
+  ): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    return new Promise((resolve, reject) => {
+      const upload = cloudinary.uploader.upload_stream((error, result) => {
+        if (error) return reject(error);
+        resolve(result);
+      });
+
+      bufferToStream(file.buffer).pipe(upload);
+    });
   }
 }
