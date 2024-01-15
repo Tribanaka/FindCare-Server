@@ -29,8 +29,27 @@ export class HospitalsService {
     return await this.hospitalsRepository.save(newHospital);
   }
 
-  findAll() {
-    return this.hospitalsRepository.find();
+  findAll(filter: { name?: string; city?: string; state?: string }) {
+    const query = this.hospitalsRepository.createQueryBuilder('hospital');
+
+    if (filter.name) {
+      query.andWhere('LOWER(hospital.name) LIKE LOWER(:name)', {
+        name: `%${filter.name}%`,
+      });
+    }
+
+    if (filter.city) {
+      query.andWhere('LOWER(hospital.city) LIKE LOWER(:city)', {
+        city: `%${filter.city}%`,
+      });
+    }
+
+    if (filter.state) {
+      query.andWhere('LOWER(hospital.state) LIKE LOWER(:state)', {
+        state: `%${filter.state}%`,
+      });
+    }
+    return query.getMany();
   }
 
   findOne(id: number) {

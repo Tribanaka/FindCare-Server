@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CreateHospitalDto } from './dto/create-hospital.dto';
 import { UpdateHospitalDto } from './dto/update-hospital.dto';
@@ -16,8 +17,12 @@ export class HospitalsController {
   constructor(private hospitalsService: HospitalsService) {}
 
   @Get()
-  findAll() {
-    return this.hospitalsService.findAll();
+  findAll(
+    @Query('name') name: string,
+    @Query('state') state: string,
+    @Query('city') city: string,
+  ) {
+    return this.hospitalsService.findAll({ name, city, state });
   }
 
   @Get(':id')
