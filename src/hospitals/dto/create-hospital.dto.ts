@@ -1,8 +1,15 @@
-import { Practioner } from 'src/practioners/interfaces/practioner.interface';
+import { IsNotEmpty } from 'class-validator';
 
 export class CreateHospitalDto {
+  @IsNotEmpty()
   name: string;
-  state: string;
+
+  @IsNotEmpty()
+  address: string;
+
+  @IsNotEmpty()
   city: string;
-  practioners: Practioner[];
+
+  @IsNotEmpty()
+  state: string;
 }

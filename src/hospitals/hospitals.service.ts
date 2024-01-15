@@ -1,80 +1,39 @@
-import { Injectable } from '@nestjs/common';
-import { Hospitals } from 'src/hospitals/interfaces/hospital.interface';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateHospitalDto } from './dto/create-hospital.dto';
-import { UpdateHospitalDto } from './dto/update-hospital.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Hospital } from './hospital.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class HospitalsService {
-  private hospitals: Hospitals[] = [
-    {
-      id: '1',
-      name: 'Standard Hospital',
-      city: 'Minna',
-      state: 'Niger',
+  constructor(
+    @InjectRepository(Hospital)
+    private hospitalsRepository: Repository<Hospital>,
+  ) {}
 
-      practioners: [],
-    },
-    {
-      id: '2',
-      name: 'Top Medical Hospital',
-      city: 'Minna',
-      state: 'Niger',
-      practioners: [],
-    },
-    {
-      id: '3',
-      name: 'Optimal Family Medical Centre',
-      city: 'Minna',
-      state: 'Niger',
-
-      practioners: [],
-    },
-    {
-      id: '4',
-      name: 'Sent. Idris Ibrahim kuta memorial primary health care center',
-      city: 'Minna',
-      state: 'Niger',
-
-      practioners: [],
-    },
-    {
-      id: '5',
-      name: 'Shiloh Hospital and Diagnostic Center Minna',
-      city: 'Minna',
-      state: 'Niger',
-
-      practioners: [],
-    },
-  ];
-
-  findAll() {
-    return this.hospitals;
-  }
-
-  findOne(id: string) {
-    return this.hospitals.find((hospital) => hospital.id === id);
-  }
-
-  create(createHospitalDto: CreateHospitalDto) {
-    const usersByHighestId = [...this.hospitals].sort((a, b) => +b.id - +a.id);
-
-    const newHospital = {
-      id: `${usersByHighestId[0].id + 1}`,
-      ...createHospitalDto,
-    };
-
-    this.hospitals.push(newHospital);
-    return newHospital;
-  }
-
-  update(id: string, updateHospitalDto: UpdateHospitalDto) {
-    this.hospitals = this.hospitals.map((hospital) => {
-      if (hospital.id === id) {
-        return { ...hospital, ...updateHospitalDto };
-      }
-      return hospital;
+  async create(createHospitalDto: CreateHospitalDto) {
+    const hospital = await this.hospitalsRepository.findOneBy({
+      name: createHospitalDto.name,
     });
 
-    return this.findOne(id);
+    if (hospital) {
+      throw new HttpException(
+        'An hospital with this name exist already.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const newHospital = this.hospitalsRepository.create({
+      ...createHospitalDto,
+    });
+
+    return await this.hospitalsRepository.save(newHospital);
+  }
+
+  findAll() {
+    return this.hospitalsRepository.find();
+  }
+
+  findOne(id: number) {
+    return this.hospitalsRepository.findOneBy({ id });
   }
 }
