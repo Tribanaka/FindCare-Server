@@ -34,7 +34,10 @@ export class SchedulesService {
       await this.practitionersService.findById(practitionerId);
 
     if (!practitioner) {
-      throw new NotFoundException();
+      throw new HttpException(
+        `Practitioner with ${practitionerId} ID not found`,
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const existingSchedules = await this.schedulesRespository.find({
@@ -56,12 +59,12 @@ export class SchedulesService {
         closing_hour: schedule.closingHour,
       });
 
-      if (schedule.openingHour >= schedule.closingHour) {
-        throw new HttpException(
-          'Closing hour cannot be less than or equal to opening hour',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+      // if (schedule.openingHour >= schedule.closingHour) {
+      //   throw new HttpException(
+      //     'Closing hour cannot be less than or equal to opening hour',
+      //     HttpStatus.BAD_REQUEST,
+      //   );
+      // }
 
       return newSchedule;
     });
@@ -72,7 +75,7 @@ export class SchedulesService {
   }
 
   async updateWeeklySchedule(
-    practitionerId,
+    practitionerId: number,
     updateScheduleDto: UpdateScheduleDto,
   ) {
     const practitioner =
