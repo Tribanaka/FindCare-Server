@@ -3,4 +3,5 @@ export class CreateAppointmentDto {
   userId: number;
   date: string;
   time: string;
+  timeZone: string;
 }

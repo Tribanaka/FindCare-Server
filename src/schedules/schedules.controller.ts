@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, Put } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { SchedulesService } from './schedules.service';
 import { CreateSchedulesDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
@@ -6,6 +6,14 @@ import { UpdateScheduleDto } from './dto/update-schedule.dto';
 @Controller('schedules')
 export class SchedulesController {
   constructor(private readonly schedulesService: SchedulesService) {}
+
+  @Get(':practitionerId')
+  async getAvailableSlots(
+    @Param('practitionerId') practitionerId: number,
+    @Query('timeZone') timeZone: string,
+  ) {
+    return this.schedulesService.getAvailableSlots(practitionerId, timeZone);
+  }
 
   @Post(':practitionerId')
   create(

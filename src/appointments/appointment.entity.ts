@@ -8,18 +8,15 @@ export class Appointment {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column('date')
+  date: string;
+
+  @Column()
+  time: string;
+
   @ManyToOne(() => Practitioner)
   practitioner: Practitioner;
 
   @ManyToOne(() => User)
   user: User;
-
-  @Column('date')
-  data: string;
-
-  @Column('timestamp')
-  startTime: Date;
-
-  @Column('timestamp')
-  endTime: Date;
 }
