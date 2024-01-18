@@ -51,11 +51,16 @@ export class AuthService {
     const user = await this.practionersService.findByEmail(signInDto.email);
 
     if (!user) {
-      throw new UnauthorizedException();
+      throw new HttpException(
+        'Email and password do not match.',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
-
     if (!compareSync(signInDto.password, user.password)) {
-      throw new UnauthorizedException();
+      throw new HttpException(
+        'Email and password do not match.',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
 
     const payload = { sub: user.id, email: user.email };
