@@ -128,4 +128,31 @@ export class AppointmentsService {
 
     return newAppointment;
   }
+
+  async findByUser(userId: number) {
+    const user = await this.usersService.findById(userId);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    return this.appointmentsRepository.find({
+      where: { user },
+      relations: ['practitioner'],
+    });
+  }
+
+  async findByPractitioner(practitionerId: number) {
+    const practitioner =
+      await this.practitionersService.findById(practitionerId);
+
+    if (!practitioner) {
+      throw new HttpException('Practitioner not found', HttpStatus.NOT_FOUND);
+    }
+
+    return this.appointmentsRepository.find({
+      where: { practitioner },
+      relations: ['user'],
+    });
+  }
 }
