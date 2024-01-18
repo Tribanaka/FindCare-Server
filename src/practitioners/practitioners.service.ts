@@ -21,16 +21,43 @@ export class PractitionersService {
     private hospitalsService: HospitalsService,
   ) {}
 
-  findAll(filter: {
-    hospitalName?: string;
-    state?: string;
-    city?: string;
-    specialization?: string;
-  }) {
+  findAll(
+    filter: {
+      hospitalName?: string;
+      state?: string;
+      city?: string;
+      specialization?: string;
+    },
+    search: string,
+  ) {
     const query = this.practitionerRepository
       .createQueryBuilder('practitioner')
       .leftJoinAndSelect('practitioner.hospital', 'hospital');
 
+    if (search) {
+      query
+        .orWhere('LOWER(practitioner.specialization) LIKE LOWER(:search)', {
+          search: `%${search}%`,
+        })
+        .orWhere('LOWER(hospital.name) LIKE LOWER(:search)', {
+          search: `%${search}%`,
+        })
+        .orWhere('LOWER(hospital.address) LIKE LOWER(:search)', {
+          search: `%${search}%`,
+        })
+        .orWhere('LOWER(hospital.city) LIKE LOWER(:search)', {
+          search: `%${search}%`,
+        })
+        .orWhere('LOWER(hospital.state) LIKE LOWER(:search)', {
+          search: `%${search}%`,
+        })
+        .orWhere('LOWER(practitioner.first_name) LIKE LOWER(:search)', {
+          search: `%${search}%`,
+        })
+        .orWhere('LOWER(practitioner.last_name) LIKE LOWER(:search)', {
+          search: `%${search}%`,
+        });
+    }
     if (filter.specialization) {
       query.andWhere(
         'LOWER(practitioner.specialization) LIKE LOWER(:specialization)',
