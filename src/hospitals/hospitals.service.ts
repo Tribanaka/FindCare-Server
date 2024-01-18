@@ -29,8 +29,27 @@ export class HospitalsService {
     return await this.hospitalsRepository.save(newHospital);
   }
 
-  findAll(filter: { name?: string; city?: string; state?: string }) {
+  findAll(
+    filter: { name?: string; city?: string; state?: string },
+    search: string,
+  ) {
     const query = this.hospitalsRepository.createQueryBuilder('hospital');
+
+    if (search) {
+      query
+        .orWhere('LOWER(hospital.name) LIKE LOWER(:search)', {
+          search: `%${search}%`,
+        })
+        .orWhere('LOWER(hospital.address) LIKE LOWER(:search)', {
+          search: `%${search}%`,
+        })
+        .orWhere('LOWER(hospital.city) LIKE LOWER(:search)', {
+          search: `%${search}%`,
+        })
+        .orWhere('LOWER(hospital.state) LIKE LOWER(:search)', {
+          search: `%${search}%`,
+        });
+    }
 
     if (filter.name) {
       query.andWhere('LOWER(hospital.name) LIKE LOWER(:name)', {

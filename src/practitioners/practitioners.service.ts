@@ -42,6 +42,9 @@ export class PractitionersService {
         .orWhere('LOWER(hospital.name) LIKE LOWER(:search)', {
           search: `%${search}%`,
         })
+        .orWhere('LOWER(hospital.address) LIKE LOWER(:search)', {
+          search: `%${search}%`,
+        })
         .orWhere('LOWER(hospital.city) LIKE LOWER(:search)', {
           search: `%${search}%`,
         })

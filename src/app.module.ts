@@ -29,9 +29,13 @@ import { HospitalsModule } from './hospitals/hospitals.module';
       database: `${process.env.DB_DATABASE}`,
       autoLoadEntities: true,
       synchronize: true,
-      ssl: {
-        rejectUnauthorized: false,
-      },
+      ...(process.env.NODE_ENV !== 'development'
+        ? {
+            ssl: {
+              rejectUnauthorized: false,
+            },
+          }
+        : {}),
     }),
   ],
   controllers: [AppController],

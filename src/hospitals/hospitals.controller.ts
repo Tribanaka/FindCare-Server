@@ -21,8 +21,9 @@ export class HospitalsController {
     @Query('name') name: string,
     @Query('state') state: string,
     @Query('city') city: string,
+    @Query('search') search: string,
   ) {
-    return this.hospitalsService.findAll({ name, city, state });
+    return this.hospitalsService.findAll({ name, city, state }, search);
   }
 
   @Get(':id')
