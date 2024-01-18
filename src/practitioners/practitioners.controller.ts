@@ -46,8 +46,8 @@ export class PractitionersController {
     @UploadedFile(
       new ParseFilePipe({
         validators: [
-          new MaxFileSizeValidator({ maxSize: 1 * 1024 * 1024 }), //1MB
-          new FileTypeValidator({ fileType: 'image/png' }),
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }), //5MB
+          new FileTypeValidator({ fileType: /^image\/(png|jpeg)$/ }),
         ],
       }),
     )
