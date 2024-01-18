@@ -3,7 +3,6 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-  NotFoundException,
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -12,11 +11,8 @@ import { Repository } from 'typeorm';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { PractitionersService } from 'src/practitioners/practitioners.service';
 import { UsersService } from 'src/users/users.service';
-import getDayOfWeek from 'src/utils/getDayOfWeek';
 import { SchedulesService } from 'src/schedules/schedules.service';
-import addMinutes from 'src/utils/addMinutes';
-import { format, parse } from 'date-fns';
-import moment from 'moment-timezone';
+import * as moment from 'moment-timezone';
 import { Practitioner } from 'src/practitioners/practitioner.entity';
 
 @Injectable()
@@ -33,99 +29,6 @@ export class AppointmentsService {
   findOne(practitioner: Practitioner, date: string, time: string) {
     return this.appointmentsRepository.findOneBy({ practitioner, date, time });
   }
-
-  // async create(createAppointmentDto: CreateAppointmentDto) {
-  //   const { practitionerId, userId, date, time } = createAppointmentDto;
-
-  //   const dayOfWeek = getDayOfWeek(date);
-
-  //   const practitioner =
-  //     await this.practitionersService.findById(practitionerId);
-
-  //   const patient = await this.usersService.findById(userId);
-
-  //   if (!practitioner || !patient) {
-  //     throw new NotFoundException();
-  //   }
-
-  //   const schedule = await this.schedulesService.findOne(
-  //     practitioner,
-  //     dayOfWeek,
-  //   );
-
-  //   console.log({ schedule });
-  //   console.log({ time });
-
-  //   const selectedTime = parse(
-  //     `${date} ${time}`,
-  //     'dd/MM/yyyy HH:mm',
-  //     new Date(),
-  //   );
-  //   // const today = format(new Date(), 'dd/MM/yyyy');
-  //   const currentOpeningTime = parse(
-  //     `${date} ${schedule?.opening_hour}`,
-  //     'dd/MM/yyyy HH:mm:ss',
-  //     new Date(),
-  //   );
-  //   const currentClosingTime = parse(
-  //     `${date} ${schedule?.closing_hour}`,
-  //     'dd/MM/yyyy HH:mm:ss',
-  //     new Date(),
-  //   );
-
-  //   console.log(
-  //     selectedTime,
-  //     currentOpeningTime,
-  //     currentClosingTime,
-  //     addMinutes(date, 30),
-  //   );
-
-  //   if (
-  //     !schedule ||
-  //     selectedTime < currentOpeningTime ||
-  //     selectedTime > currentClosingTime
-  //   ) {
-  //     throw new HttpException(
-  //       'Doctor not available at the selected date and time.',
-  //       HttpStatus.BAD_REQUEST,
-  //     );
-  //   }
-
-  //   const existingAppointment = await this.appointmentsRepository.findOne({
-  //     where: { practitioner, startTime: selectedTime },
-  //   });
-
-  //   if (existingAppointment) {
-  //     throw new HttpException(
-  //       'An appointment already exists at the selected time.',
-  //       HttpStatus.BAD_REQUEST,
-  //     );
-  //   }
-
-  //   // const newAppointment = this.appointmentsRepository.create({
-  //   //   practitioner,
-  //   //   user: patient,
-  //   //   startTime: selectedTime,
-  //   //   endTime: addMinutes(date, 30),
-  //   // });
-  // }
-
-  // async createAppointment(
-  //   userId: number,
-  //   practitionerId: number,
-  //   date: string,
-  //   time: string,
-  //   timeZone: string,
-  // ) {
-  //   const utcDate = moment
-  //     .tz(`${date}T${time}`, timeZone)
-  //     .utc()
-  //     .format('YYYY-MM-DD');
-  //   const utcTime = moment
-  //     .tz(`${date}T${time}`, timeZone)
-  //     .utc()
-  //     .format('HH:mm');
-  // }
 
   async createAppointment(
     createAppointmentDto: CreateAppointmentDto,
@@ -152,26 +55,52 @@ export class AppointmentsService {
       );
     }
 
+    // Convert date from 'DD-MM-YYYY' to 'YYYY-MM-DD'
+    const formattedDate = moment(date, 'DD-MM-YYYY').format('YYYY-MM-DD');
+
+    const [hours, minutes] = time.split(':');
+    const formattedTime = `${hours.padStart(2, '0')}:${minutes}`;
+
+    const appointmentTime = moment.tz(
+      `${formattedDate}T${formattedTime}`,
+      timeZone,
+    );
+
+    // Get the current time in the practitioner's time zone (Nigerian time)
+    const currentTime = moment.tz('Africa/Lagos');
+
+    // Check if the appointment time is in the future
+    if (appointmentTime.isSameOrBefore(currentTime)) {
+      throw new HttpException(
+        'The appointment time must be in the future.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     // Convert the date and time to UTC
     const utcDate = moment
-      .tz(`${date}T${time}`, timeZone)
+      .tz(`${formattedDate}T${formattedTime}`, timeZone)
       .utc()
       .format('YYYY-MM-DD');
     const utcTime = moment
-      .tz(`${date}T${time}`, timeZone)
+      .tz(`${formattedDate}T${formattedTime}`, timeZone)
       .utc()
       .format('HH:mm');
 
     // Get the available slots for the practitioner
     const availableSlots = await this.schedulesService.getAvailableSlots(
       practitionerId,
-      timeZone,
+      { timeZone },
     );
 
     // Check if the selected date and time is available
-    if (!availableSlots[date].includes(time)) {
+    if (
+      !availableSlots.some(
+        (slot) =>
+          slot.date === formattedDate && slot.timeSlots.includes(formattedTime),
+      )
+    ) {
       throw new HttpException(
-        'This slot is not available.',
+        'The selected date and time slot is not available.',
         HttpStatus.BAD_REQUEST,
       );
     }
