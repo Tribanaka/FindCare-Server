@@ -26,13 +26,17 @@ export class PractitionersController {
     @Query('hospitalName') hospitalName: string,
     @Query('state') state: string,
     @Query('city') city: string,
+    @Query('search') search: string,
   ): Promise<Practitioner[]> {
-    return this.practitionersService.findAll({
-      hospitalName,
-      state,
-      city,
-      specialization,
-    });
+    return this.practitionersService.findAll(
+      {
+        hospitalName,
+        state,
+        city,
+        specialization,
+      },
+      search,
+    );
   }
 
   @Get('id:')
