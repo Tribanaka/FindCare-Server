@@ -87,7 +87,10 @@ export class PractitionersService {
   }
 
   findByEmail(email: string): Promise<Practitioner | null> {
-    return this.practitionerRepository.findOneBy({ email });
+    return this.practitionerRepository.findOne({
+      select: ['id', 'email', 'first_name', 'last_name', 'password'],
+      where: { email },
+    });
   }
 
   findById(id: number): Promise<Practitioner> {
