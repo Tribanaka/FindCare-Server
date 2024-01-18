@@ -174,19 +174,20 @@ export class SchedulesService {
 
         while (start.isBefore(end)) {
           // Convert the time to UTC
-          // const utcTime = start.utc().format('HH:mm');
+          const utcTime = start.clone().utc().format('HH:mm');
+          const utcDate = start.clone().utc().format('YYYY-MM-DD');
 
           // Check if an appointment already exists at this time
-          // const appointment = await this.appointmentsServices.findOne(
-          //   practitioner,
-          //   currentDate.utc().format('YYYY-MM-DD'),
-          //   utcTime,
-          // );
-          // if (!appointment.length) {
-          //   timeSlots.push(start.format('HH:mm'));
-          // } else {
-          //   console.log(appointment);
-          // }
+          const appointment = await this.appointmentsServices.findOne(
+            practitioner,
+            utcDate,
+            utcTime,
+          );
+          if (!appointment) {
+            timeSlots.push(start.format('HH:mm'));
+          } else {
+            console.log(appointment);
+          }
 
           if (start.isAfter(moment())) {
             timeSlots.push(start.format('HH:mm'));

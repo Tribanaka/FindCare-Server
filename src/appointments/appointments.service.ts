@@ -31,7 +31,7 @@ export class AppointmentsService {
   ) {}
 
   findOne(practitioner: Practitioner, date: string, time: string) {
-    return this.appointmentsRepository.findBy({ practitioner, date, time });
+    return this.appointmentsRepository.findOneBy({ practitioner, date, time });
   }
 
   // async create(createAppointmentDto: CreateAppointmentDto) {
