@@ -15,6 +15,7 @@ import { PractitionersService } from 'src/practitioners/practitioners.service';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import * as moment from 'moment-timezone';
 import { AppointmentsService } from 'src/appointments/appointments.service';
+import { QueryTimeZoneDto } from './dto/query-timezone.dt';
 
 @Injectable()
 export class SchedulesService {
@@ -123,7 +124,12 @@ export class SchedulesService {
     return newSchedules;
   }
 
-  async getAvailableSlots(practitionerId: number, timeZone: string) {
+  async getAvailableSlots(
+    practitionerId: number,
+    queryTimeZoneDto: QueryTimeZoneDto,
+  ): Promise<{ date: string; day: ''; timeSlots: string[] }[]> {
+    const { timeZone } = queryTimeZoneDto;
+
     const practitioner =
       await this.practitionersService.findById(practitionerId);
 
@@ -174,22 +180,19 @@ export class SchedulesService {
 
         while (start.isBefore(end)) {
           // Convert the time to UTC
-          // const utcTime = start.utc().format('HH:mm');
+          const utcTime = start.clone().utc().format('HH:mm');
+          const utcDate = start.clone().utc().format('YYYY-MM-DD');
 
           // Check if an appointment already exists at this time
-          // const appointment = await this.appointmentsServices.findOne(
-          //   practitioner,
-          //   currentDate.utc().format('YYYY-MM-DD'),
-          //   utcTime,
-          // );
-          // if (!appointment.length) {
-          //   timeSlots.push(start.format('HH:mm'));
-          // } else {
-          //   console.log(appointment);
-          // }
-
-          if (start.isAfter(moment())) {
+          const appointment = await this.appointmentsServices.findOne(
+            practitioner,
+            utcDate,
+            utcTime,
+          );
+          if (!appointment && start.isAfter(moment())) {
             timeSlots.push(start.format('HH:mm'));
+          } else {
+            console.log(appointment);
           }
 
           start.add(30, 'minutes');

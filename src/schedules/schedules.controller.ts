@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { SchedulesService } from './schedules.service';
 import { CreateSchedulesDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
+import { QueryTimeZoneDto } from './dto/query-timezone.dt';
 
 @Controller('schedules')
 export class SchedulesController {
@@ -10,9 +11,12 @@ export class SchedulesController {
   @Get(':practitionerId')
   async getAvailableSlots(
     @Param('practitionerId') practitionerId: number,
-    @Query('timeZone') timeZone: string,
+    @Query() queryTimeZoneDto: QueryTimeZoneDto,
   ) {
-    return this.schedulesService.getAvailableSlots(practitionerId, timeZone);
+    return this.schedulesService.getAvailableSlots(
+      practitionerId,
+      queryTimeZoneDto,
+    );
   }
 
   @Post(':practitionerId')
