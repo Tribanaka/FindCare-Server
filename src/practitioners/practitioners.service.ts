@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Practitioner } from './practitioner.entity';
 import { Repository } from 'typeorm';
@@ -93,8 +98,13 @@ export class PractitionersService {
     });
   }
 
-  findById(id: number): Promise<Practitioner> {
-    return this.practitionerRepository.findOneBy({ id });
+  async findById(id: number): Promise<Practitioner> {
+    const practitioner = await this.practitionerRepository.findOneBy({ id });
+
+    if (!practitioner) {
+      throw new NotFoundException(`Hospital with ID ${id} not found`);
+    }
+    return practitioner;
   }
 
   async create(
