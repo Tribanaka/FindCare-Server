@@ -4,6 +4,8 @@ import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { hashSync } from 'bcrypt';
+import { PaginationDto, PaginationOptionsDto } from 'src/pagination/dto';
+import paginate from 'src/pagination';
 
 @Injectable()
 export class UsersService {
@@ -12,8 +14,11 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  async findAll(
+    paginationOptionsDto: PaginationOptionsDto,
+  ): Promise<PaginationDto<User>> {
+    const queryBuilder = this.usersRepository.createQueryBuilder('user');
+    return paginate(queryBuilder, 'user.created_at', paginationOptionsDto);
   }
 
   findByEmail(email: string): Promise<User | null> {
@@ -52,6 +57,7 @@ export class UsersService {
       password: hashedPassword,
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...result } = await this.usersRepository.save(user);
 
     return result;
