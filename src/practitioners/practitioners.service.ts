@@ -94,7 +94,7 @@ export class PractitionersService {
   findByEmail(email: string): Promise<Practitioner | null> {
     return this.practitionerRepository.findOne({
       select: ['id', 'email', 'first_name', 'last_name', 'password'],
-      where: { email },
+      where: { email: email.toLowerCase() },
     });
   }
 
@@ -153,7 +153,7 @@ export class PractitionersService {
     const practitoner = this.practitionerRepository.create({
       first_name: firstName,
       last_name: lastName,
-      email: email,
+      email: email.toLowerCase(),
       password: hashedPassword,
       bio: bio,
       specialization: specialization,

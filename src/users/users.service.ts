@@ -19,11 +19,11 @@ export class UsersService {
   findByEmail(email: string): Promise<User | null> {
     return this.usersRepository.findOne({
       select: ['id', 'email', 'first_name', 'last_name', 'password'],
-      where: { email },
+      where: { email: email.toLowerCase() },
     });
   }
   findByEmailWithoutPassword(email: string): Promise<User | null> {
-    return this.usersRepository.findOneBy({ email });
+    return this.usersRepository.findOneBy({ email: email.toLowerCase() });
   }
 
   findById(id: number): Promise<User> {
@@ -48,7 +48,7 @@ export class UsersService {
     const user = this.usersRepository.create({
       first_name: firstName,
       last_name: lastName,
-      email: email,
+      email: email.toLowerCase(),
       password: hashedPassword,
     });
 
