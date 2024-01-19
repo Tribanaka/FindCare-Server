@@ -4,6 +4,11 @@ import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { hashSync } from 'bcrypt';
+import {
+  PaginationDto,
+  PaginationMetaDto,
+  PaginationOptionsDto,
+} from 'src/pagination/dto';
 
 @Injectable()
 export class UsersService {
@@ -12,8 +17,23 @@ export class UsersService {
     private usersRepository: Repository<User>,
   ) {}
 
-  findAll(): Promise<User[]> {
-    return this.usersRepository.find();
+  async findAll(
+    paginationOptionsDto: PaginationOptionsDto,
+  ): Promise<PaginationDto<User>> {
+    const queryBuilder = this.usersRepository.createQueryBuilder('user');
+    queryBuilder
+      .orderBy('user.created_at', paginationOptionsDto.order)
+      .skip(paginationOptionsDto.skip)
+      .take(paginationOptionsDto.limit);
+    const totalItemCount = await queryBuilder.getCount();
+    const { entities } = await queryBuilder.getRawAndEntities();
+    const paginationMetaDto = new PaginationMetaDto({
+      itemCount: entities.length,
+      pageOptionsDto: paginationOptionsDto,
+      totalItemCount,
+    });
+    return new PaginationDto(entities, paginationMetaDto);
+    // return this.usersRepository.find();
   }
 
   findByEmail(email: string): Promise<User | null> {
@@ -52,6 +72,7 @@ export class UsersService {
       password: hashedPassword,
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...result } = await this.usersRepository.save(user);
 
     return result;

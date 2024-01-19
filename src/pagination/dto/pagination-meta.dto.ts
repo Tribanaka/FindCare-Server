@@ -10,7 +10,7 @@ export class PaginationMetaDto {
   constructor({ pageOptionsDto, itemCount }: PaginationMetaDtoParameters) {
     this.page = pageOptionsDto.page;
     this.itemCount = itemCount;
-    this.pageCount = Math.ceil(this.itemCount / this.limit);
+    this.pageCount = Math.ceil(this.itemCount / this.limit) || 0;
     this.hasPreviousPage = this.page > 1;
     this.hasNextPage = this.page < this.pageCount;
     this.limit = pageOptionsDto.limit;
