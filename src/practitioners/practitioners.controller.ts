@@ -39,9 +39,9 @@ export class PractitionersController {
     );
   }
 
-  @Get('id:')
-  findOne(@Param('id') id: string) {
-    return `This action returns #${id} practitioner`;
+  @Get(':id')
+  findOne(@Param('id') id: number) {
+    return this.practitionersService.findById(id);
   }
 
   @Post()

@@ -28,7 +28,7 @@ export class HospitalsController {
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
-    return ``;
+    return this.hospitalsService.findOne(id);
   }
 
   @Post()

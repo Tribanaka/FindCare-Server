@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateHospitalDto } from './dto/create-hospital.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hospital } from './hospital.entity';
@@ -71,7 +76,16 @@ export class HospitalsService {
     return query.getMany();
   }
 
-  findOne(id: number) {
-    return this.hospitalsRepository.findOneBy({ id });
+  async findOne(id: number) {
+    const hospital = await this.hospitalsRepository.findOne({
+      where: { id },
+      relations: ['practitioners'],
+    });
+
+    if (!hospital) {
+      throw new NotFoundException(`Hospital with ID ${id} not found`);
+    }
+
+    return hospital;
   }
 }
