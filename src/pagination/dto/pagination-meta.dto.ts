@@ -4,15 +4,21 @@ export class PaginationMetaDto {
   page: number;
   itemCount: number;
   limit: number;
+  totalItemCount: number;
   pageCount: number;
   hasPreviousPage: boolean;
   hasNextPage: boolean;
-  constructor({ pageOptionsDto, itemCount }: PaginationMetaDtoParameters) {
+  constructor({
+    pageOptionsDto,
+    itemCount,
+    totalItemCount,
+  }: PaginationMetaDtoParameters) {
     this.page = pageOptionsDto.page;
+    this.limit = pageOptionsDto.limit;
     this.itemCount = itemCount;
-    this.pageCount = Math.ceil(this.itemCount / this.limit) || 0;
+    this.totalItemCount = totalItemCount;
+    this.pageCount = Math.ceil(this.totalItemCount / this.limit);
     this.hasPreviousPage = this.page > 1;
     this.hasNextPage = this.page < this.pageCount;
-    this.limit = pageOptionsDto.limit;
   }
 }
