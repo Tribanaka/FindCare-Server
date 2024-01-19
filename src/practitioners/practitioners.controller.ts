@@ -15,6 +15,7 @@ import { CreatePractionerDto } from './dto/create-practitioner.dto';
 import { PractitionersService } from './practitioners.service';
 import { Practitioner } from './practitioner.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { FindPractitionersDto, FindPractitionersDto } from './dto';
 
 @Controller('practitioners')
 export class PractitionersController {
@@ -22,21 +23,9 @@ export class PractitionersController {
 
   @Get()
   findAll(
-    @Query('specialization') specialization: string,
-    @Query('hospitalName') hospitalName: string,
-    @Query('state') state: string,
-    @Query('city') city: string,
-    @Query('search') search: string,
+    @Query() findPractitionersDto: FindPractitionersDto,
   ): Promise<Practitioner[]> {
-    return this.practitionersService.findAll(
-      {
-        hospitalName,
-        state,
-        city,
-        specialization,
-      },
-      search,
-    );
+    return this.practitionersService.findAll(findPractitionersDto);
   }
 
   @Get('id:')
