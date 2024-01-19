@@ -1,6 +1,4 @@
-
-import { FindHospitalsDto, CreateHospitalDto } from './dto';
-
+import { CreateHospitalDto, FindHospitalsDto } from './dto';
 
 import {
   HttpException,
@@ -8,9 +6,6 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-
-
-import { CreateHospitalDto } from './dto/create-hospital.dto';
 
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hospital } from './hospital.entity';
