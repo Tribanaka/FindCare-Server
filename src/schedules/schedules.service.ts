@@ -143,7 +143,7 @@ export class SchedulesService {
 
     if (!schedules) {
       throw new HttpException(
-        `No Practitioner with ID${practitionerId} hasn't created a schedule`,
+        `Practitioner with ID${practitionerId} hasn't created a schedule`,
         HttpStatus.NOT_FOUND,
       );
     }
@@ -174,6 +174,12 @@ export class SchedulesService {
           `${currentDate.format('YYYY-MM-DD')}T${schedule.closing_hour}+01:00`,
           timeZone,
         );
+
+        // Check if the end time is before the start time
+        if (end.isBefore(start)) {
+          // If so, add one day to the end time
+          end.add(1, 'days');
+        }
 
         // Create an array to store the available times for the current day
         let timeSlots = [];

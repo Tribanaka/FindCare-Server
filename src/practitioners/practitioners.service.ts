@@ -102,7 +102,7 @@ export class PractitionersService {
     const practitioner = await this.practitionerRepository.findOneBy({ id });
 
     if (!practitioner) {
-      throw new NotFoundException(`Hospital with ID ${id} not found`);
+      throw new NotFoundException(`Practitioner with ID ${id} not found`);
     }
     return practitioner;
   }
