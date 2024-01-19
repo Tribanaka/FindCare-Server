@@ -1,3 +1,4 @@
+import { FindPractitionersDto } from './dto/find-practitioners.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Practitioner } from './practitioner.entity';
@@ -12,6 +13,7 @@ import {
   v2 as cloudinary,
 } from 'cloudinary';
 import { bufferToStream } from 'src/utils/bufferToStrem';
+import paginate from 'src/pagination';
 
 @Injectable()
 export class PractitionersService {
@@ -21,15 +23,10 @@ export class PractitionersService {
     private hospitalsService: HospitalsService,
   ) {}
 
-  findAll(
-    filter: {
-      hospitalName?: string;
-      state?: string;
-      city?: string;
-      specialization?: string;
-    },
-    search: string,
-  ) {
+  findAll(findPractitionersDto: FindPractitionersDto) {
+    const { hospitalName, city, search, state, specialization, skip, ...rest } =
+      findPractitionersDto;
+    const paginateOptionsDto = { ...rest, skip };
     const query = this.practitionerRepository
       .createQueryBuilder('practitioner')
       .leftJoinAndSelect('practitioner.hospital', 'hospital');
@@ -58,32 +55,32 @@ export class PractitionersService {
           search: `%${search}%`,
         });
     }
-    if (filter.specialization) {
+    if (specialization) {
       query.andWhere(
         'LOWER(practitioner.specialization) LIKE LOWER(:specialization)',
-        { specialization: `%${filter.specialization}%` },
+        { specialization: `%${specialization}%` },
       );
     }
 
-    if (filter.hospitalName) {
+    if (hospitalName) {
       query.andWhere('LOWER(hospital.name) LIKE LOWER(:hospitalName)', {
-        hospitalName: `%${filter.hospitalName}%`,
+        hospitalName: `%${hospitalName}%`,
       });
     }
 
-    if (filter.city) {
+    if (city) {
       query.andWhere('LOWER(hospital.city) LIKE LOWER(:city)', {
-        city: `%${filter.city}%`,
+        city: `%${city}%`,
       });
     }
 
-    if (filter.state) {
+    if (state) {
       query.andWhere('LOWER(hospital.state) LIKE LOWER(:state)', {
-        state: `%${filter.state}%`,
+        state: `%${state}%`,
       });
     }
 
-    return query.getMany();
+    return paginate(query, 'practitioner.id', paginateOptionsDto);
   }
 
   findByEmail(email: string): Promise<Practitioner | null> {
@@ -151,6 +148,7 @@ export class PractitionersService {
       photoUrl: imageResonse.secure_url,
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password, ...result } =
       await this.practitionerRepository.save(practitoner);
 

@@ -8,14 +8,14 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity('practitioner')
 export class Practitioner {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
   first_name: string;
-  y;
+
   @Column()
   last_name: string;
 

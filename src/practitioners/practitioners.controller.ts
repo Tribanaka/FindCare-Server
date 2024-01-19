@@ -11,21 +11,22 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { CreatePractionerDto } from './dto/create-practitioner.dto';
+import { CreatePractionerDto } from './dto';
 import { PractitionersService } from './practitioners.service';
 import { Practitioner } from './practitioner.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FindPractitionersDto, FindPractitionersDto } from './dto';
+import { FindPractitionersDto } from './dto';
+import { PaginationDto } from 'src/pagination/dto';
 
 @Controller('practitioners')
 export class PractitionersController {
   constructor(private practitionersService: PractitionersService) {}
 
   @Get()
-  findAll(
+  async findAll(
     @Query() findPractitionersDto: FindPractitionersDto,
-  ): Promise<Practitioner[]> {
-    return this.practitionersService.findAll(findPractitionersDto);
+  ): Promise<Promise<PaginationDto<Practitioner>>> {
+    return await this.practitionersService.findAll(findPractitionersDto);
   }
 
   @Get('id:')
@@ -45,8 +46,8 @@ export class PractitionersController {
       }),
     )
     photo: Express.Multer.File,
-    @Body() CreatePractionerDto: CreatePractionerDto,
+    @Body() createPractionerDto: CreatePractionerDto,
   ) {
-    return this.practitionersService.create(CreatePractionerDto, photo);
+    return this.practitionersService.create(createPractionerDto, photo);
   }
 }
