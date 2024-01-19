@@ -1,10 +1,17 @@
+
 import { FindHospitalsDto, CreateHospitalDto } from './dto';
+
+
 import {
   HttpException,
   HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+
+
+import { CreateHospitalDto } from './dto/create-hospital.dto';
+
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hospital } from './hospital.entity';
 import { Repository } from 'typeorm';
