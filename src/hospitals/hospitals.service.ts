@@ -4,7 +4,7 @@ import { CreateHospitalDto } from './dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hospital } from './hospital.entity';
 import { Repository } from 'typeorm';
-import { PaginationDto, PaginationMetaDto } from 'src/pagination/dto';
+import paginate from 'src/pagination';
 
 @Injectable()
 export class HospitalsService {
@@ -68,18 +68,7 @@ export class HospitalsService {
         state: `%${state}%`,
       });
     }
-    query
-      .orderBy('hospital.id', paginationOptionsDto.order)
-      .skip(paginationOptionsDto.skip)
-      .take(paginationOptionsDto.limit);
-    // const itemCount = await queryBuilder.getCount();
-    const { entities } = await query.getRawAndEntities();
-    const paginationMetaDto = new PaginationMetaDto({
-      itemCount: entities.length,
-      pageOptionsDto: paginationOptionsDto,
-    });
-    return new PaginationDto(entities, paginationMetaDto);
-    // return query.getMany();
+    return paginate(query, 'hospital.id', paginationOptionsDto);
   }
 
   findOne(id: number) {

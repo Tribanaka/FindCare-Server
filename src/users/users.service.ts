@@ -4,11 +4,8 @@ import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { hashSync } from 'bcrypt';
-import {
-  PaginationDto,
-  PaginationMetaDto,
-  PaginationOptionsDto,
-} from 'src/pagination/dto';
+import { PaginationDto, PaginationOptionsDto } from 'src/pagination/dto';
+import paginate from 'src/pagination';
 
 @Injectable()
 export class UsersService {
@@ -21,19 +18,7 @@ export class UsersService {
     paginationOptionsDto: PaginationOptionsDto,
   ): Promise<PaginationDto<User>> {
     const queryBuilder = this.usersRepository.createQueryBuilder('user');
-    queryBuilder
-      .orderBy('user.created_at', paginationOptionsDto.order)
-      .skip(paginationOptionsDto.skip)
-      .take(paginationOptionsDto.limit);
-    const totalItemCount = await queryBuilder.getCount();
-    const { entities } = await queryBuilder.getRawAndEntities();
-    const paginationMetaDto = new PaginationMetaDto({
-      itemCount: entities.length,
-      pageOptionsDto: paginationOptionsDto,
-      totalItemCount,
-    });
-    return new PaginationDto(entities, paginationMetaDto);
-    // return this.usersRepository.find();
+    return paginate(queryBuilder, 'user.created_at', paginationOptionsDto);
   }
 
   findByEmail(email: string): Promise<User | null> {
