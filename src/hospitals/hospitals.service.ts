@@ -1,8 +1,10 @@
+import { FindHospitalsDto } from './dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
-import { CreateHospitalDto } from './dto/create-hospital.dto';
+import { CreateHospitalDto } from './dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hospital } from './hospital.entity';
 import { Repository } from 'typeorm';
+import { PaginationDto, PaginationMetaDto } from 'src/pagination/dto';
 
 @Injectable()
 export class HospitalsService {
@@ -29,12 +31,10 @@ export class HospitalsService {
     return await this.hospitalsRepository.save(newHospital);
   }
 
-  findAll(
-    filter: { name?: string; city?: string; state?: string },
-    search: string,
-  ) {
+  async findAll(findHospitalsDto: FindHospitalsDto) {
+    const { city, name, search, state, skip, ...rest } = findHospitalsDto;
+    const paginationOptionsDto = { skip, ...rest };
     const query = this.hospitalsRepository.createQueryBuilder('hospital');
-
     if (search) {
       query
         .orWhere('LOWER(hospital.name) LIKE LOWER(:search)', {
@@ -51,24 +51,35 @@ export class HospitalsService {
         });
     }
 
-    if (filter.name) {
+    if (name) {
       query.andWhere('LOWER(hospital.name) LIKE LOWER(:name)', {
-        name: `%${filter.name}%`,
+        name: `%${name}%`,
       });
     }
 
-    if (filter.city) {
+    if (city) {
       query.andWhere('LOWER(hospital.city) LIKE LOWER(:city)', {
-        city: `%${filter.city}%`,
+        city: `%${city}%`,
       });
     }
 
-    if (filter.state) {
+    if (state) {
       query.andWhere('LOWER(hospital.state) LIKE LOWER(:state)', {
-        state: `%${filter.state}%`,
+        state: `%${state}%`,
       });
     }
-    return query.getMany();
+    query
+      .orderBy('hospital.id', paginationOptionsDto.order)
+      .skip(paginationOptionsDto.skip)
+      .take(paginationOptionsDto.limit);
+    // const itemCount = await queryBuilder.getCount();
+    const { entities } = await query.getRawAndEntities();
+    const paginationMetaDto = new PaginationMetaDto({
+      itemCount: entities.length,
+      pageOptionsDto: paginationOptionsDto,
+    });
+    return new PaginationDto(entities, paginationMetaDto);
+    // return query.getMany();
   }
 
   findOne(id: number) {
