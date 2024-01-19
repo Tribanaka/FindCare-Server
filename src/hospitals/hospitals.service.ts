@@ -72,6 +72,9 @@ export class HospitalsService {
   }
 
   findOne(id: number) {
-    return this.hospitalsRepository.findOneBy({ id });
+    return this.hospitalsRepository.findOne({
+      where: { id },
+      relations: ['practitioners'],
+    });
   }
 }
