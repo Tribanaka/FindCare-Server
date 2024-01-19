@@ -1,5 +1,10 @@
 import { FindHospitalsDto, CreateHospitalDto } from './dto';
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hospital } from './hospital.entity';
 import { Repository } from 'typeorm';
@@ -70,7 +75,16 @@ export class HospitalsService {
     return paginate(query, 'hospital.id', paginationOptionsDto);
   }
 
-  findOne(id: number) {
-    return this.hospitalsRepository.findOneBy({ id });
+  async findOne(id: number) {
+    const hospital = await this.hospitalsRepository.findOne({
+      where: { id },
+      relations: ['practitioners'],
+    });
+
+    if (!hospital) {
+      throw new NotFoundException(`Hospital with ID ${id} not found`);
+    }
+
+    return hospital;
   }
 }
