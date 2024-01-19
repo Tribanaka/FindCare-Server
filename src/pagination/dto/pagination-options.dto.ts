@@ -7,17 +7,17 @@ export class PaginationOptionsDto {
   @IsOptional()
   order?: PaginationOrder = PaginationOrder.ASC;
 
+  @Type(() => Number)
   @IsInt()
   @Min(1)
   @IsOptional()
-  @Type(() => Number)
   page: number = 1;
 
+  @Type(() => Number)
   @IsInt()
   @Max(50)
   @Min(1)
   @IsOptional()
-  @Type(() => Number)
   limit: number = 10;
 
   get skip() {
