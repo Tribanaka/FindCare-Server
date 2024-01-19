@@ -11,11 +11,10 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import { CreatePractionerDto } from './dto';
+import { CreatePractionerDto, FindPractitionersDto } from './dto';
 import { PractitionersService } from './practitioners.service';
 import { Practitioner } from './practitioner.entity';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { FindPractitionersDto } from './dto';
 import { PaginationDto } from 'src/pagination/dto';
 
 @Controller('practitioners')

@@ -8,10 +8,8 @@ import {
   Post,
   Query,
 } from '@nestjs/common';
-import { CreateHospitalDto } from './dto';
-import { UpdateHospitalDto } from './dto';
+import { CreateHospitalDto, UpdateHospitalDto, FindHospitalsDto } from './dto';
 import { HospitalsService } from './hospitals.service';
-import { FindHospitalsDto } from './dto';
 
 @Controller('hospitals')
 export class HospitalsController {
