@@ -1,8 +1,18 @@
-import { Body, Controller, Get, Param, Post, Put, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { SchedulesService } from './schedules.service';
 import { CreateSchedulesDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
 import { QueryTimeZoneDto } from './dto/query-timezone.dt';
+import { PractitionerGuard } from 'src/auth/practitioner.gaurd';
 
 @Controller('schedules')
 export class SchedulesController {
@@ -19,6 +29,7 @@ export class SchedulesController {
     );
   }
 
+  @UseGuards(PractitionerGuard)
   @Post(':practitionerId')
   create(
     @Param('practitionerId') practitionerId: number,
@@ -30,6 +41,7 @@ export class SchedulesController {
     );
   }
 
+  @UseGuards(PractitionerGuard)
   @Put(':practitionerId')
   updateSchule(
     @Param('practitionerId') practitionerId: number,
