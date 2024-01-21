@@ -1,6 +1,4 @@
-
 import { FindPractitionersDto, CreatePractionerDto } from './dto';
-
 
 import {
   HttpException,
@@ -94,6 +92,12 @@ export class PractitionersService {
     return this.practitionerRepository.findOne({
       select: ['id', 'email', 'first_name', 'last_name', 'password'],
       where: { email: email.toLowerCase() },
+    });
+  }
+
+  findByEmailWithoutPassword(email: string): Promise<Practitioner | null> {
+    return this.practitionerRepository.findOneBy({
+      email: email.toLowerCase(),
     });
   }
 
