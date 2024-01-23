@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsTimeZone } from 'class-validator';
+import { IsIn, IsNotEmpty, IsOptional, IsTimeZone } from 'class-validator';
+import { AppointmentStatus } from '../appointment.entity';
 
 export class CreateAppointmentDto {
   @IsNotEmpty()
@@ -12,6 +13,14 @@ export class CreateAppointmentDto {
 
   @IsNotEmpty()
   time: string;
+
+  @IsOptional()
+  @IsIn([
+    AppointmentStatus.PENDING,
+    AppointmentStatus.CANCELLED,
+    AppointmentStatus.COMPELETED,
+  ])
+  status: AppointmentStatus;
 
   @IsNotEmpty()
   @IsTimeZone()
