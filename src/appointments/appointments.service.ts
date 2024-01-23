@@ -4,6 +4,8 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  NotFoundException,
+  UnauthorizedException,
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,6 +18,7 @@ import { SchedulesService } from 'src/schedules/schedules.service';
 import * as moment from 'moment-timezone';
 import { Practitioner } from 'src/practitioners/practitioner.entity';
 import paginate, { PaginationOptionsDto } from 'src/pagination';
+import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 
 @Injectable()
 export class AppointmentsService {
@@ -171,5 +174,205 @@ export class AppointmentsService {
         practitionerId: practitioner.id,
       });
     return paginate(query, 'appointment.id', paginationOptionsDto);
+  }
+
+  async updateByPractitioner(
+    appointmentId: number,
+    updateAppointmentDto: UpdateAppointmentDto,
+    request: any,
+  ) {
+    const { time, timeZone, date } = updateAppointmentDto;
+
+    const appointment = await this.appointmentsRepository.findOne({
+      where: { id: appointmentId },
+      relations: ['practitioner'],
+    });
+
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+
+    if (request.practitioner?.email !== appointment.practitioner.email) {
+      throw new UnauthorizedException('Practitioner not authorized');
+    }
+
+    if (time || date || timeZone) {
+      if (!date) {
+        throw new HttpException(
+          'date field is required',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      if (!timeZone) {
+        throw new HttpException(
+          'timeZone field is required',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      if (!time) {
+        throw new HttpException(
+          'time field is required',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      // Convert date from 'DD-MM-YYYY' to 'YYYY-MM-DD'
+      const formattedDate = moment(date, 'DD-MM-YYYY').format('YYYY-MM-DD');
+
+      const [hours, minutes] = time.split(':');
+      const formattedTime = `${hours.padStart(2, '0')}:${minutes}`;
+
+      const appointmentTime = moment.tz(
+        `${formattedDate}T${formattedTime}`,
+        timeZone,
+      );
+
+      // Get the current time in the practitioner's time zone (Nigerian time)
+      const currentTime = moment.tz('Africa/Lagos');
+
+      // Check if the appointment time is in the future
+      if (appointmentTime.isSameOrBefore(currentTime)) {
+        throw new HttpException(
+          'The appointment time must be in the future.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      // Get the available slots for the practitioner
+      const availableSlots = await this.schedulesService.getAvailableSlots(
+        appointment.practitioner.id,
+        { timeZone },
+      );
+
+      // Check if the selected date and time is available
+      if (
+        !availableSlots.some(
+          (slot) =>
+            slot.date === formattedDate &&
+            slot.timeSlots.includes(formattedTime),
+        )
+      ) {
+        throw new HttpException(
+          'The selected date and time slot is not available.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
+    const updatedAppointment = this.appointmentsRepository.merge(
+      appointment,
+      updateAppointmentDto,
+    );
+
+    this.appointmentsRepository.save(updatedAppointment);
+
+    return updatedAppointment;
+  }
+
+  async updateByUser(
+    appointmentId: number,
+    updateAppointmentDto: UpdateAppointmentDto,
+    request: any,
+  ) {
+    const { time, timeZone, date } = updateAppointmentDto;
+
+    const appointment = await this.appointmentsRepository.findOne({
+      where: { id: appointmentId },
+      relations: ['user', 'practitioner'],
+    });
+
+    if (!appointment) {
+      throw new NotFoundException('Appointment not found');
+    }
+
+    if (request.user?.email !== appointment.user.email) {
+      throw new UnauthorizedException('User not authorized');
+    }
+
+    if (time || date || timeZone) {
+      if (!date) {
+        throw new HttpException(
+          'date field is required',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      if (!timeZone) {
+        throw new HttpException(
+          'timeZone field is required',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      if (!time) {
+        throw new HttpException(
+          'time field is required',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      // Convert date from 'DD-MM-YYYY' to 'YYYY-MM-DD'
+      const formattedDate = moment(date, 'DD-MM-YYYY').format('YYYY-MM-DD');
+
+      const [hours, minutes] = time.split(':');
+      const formattedTime = `${hours.padStart(2, '0')}:${minutes}`;
+
+      const appointmentTime = moment.tz(
+        `${formattedDate}T${formattedTime}`,
+        timeZone,
+      );
+
+      // Get the current time in the practitioner's time zone (Nigerian time)
+      const currentTime = moment.tz('Africa/Lagos');
+
+      // Check if the appointment time is in the future
+      if (appointmentTime.isSameOrBefore(currentTime)) {
+        throw new HttpException(
+          'The appointment time must be in the future.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      // Convert the date and time to UTC
+      const utcDate = moment
+        .tz(`${formattedDate}T${formattedTime}`, timeZone)
+        .utc()
+        .format('YYYY-MM-DD');
+      const utcTime = moment
+        .tz(`${formattedDate}T${formattedTime}`, timeZone)
+        .utc()
+        .format('HH:mm');
+
+      // Get the available slots for the practitioner
+      const availableSlots = await this.schedulesService.getAvailableSlots(
+        appointment.practitioner.id,
+        { timeZone },
+      );
+
+      // Check if the selected date and time is available
+      if (
+        !availableSlots.some(
+          (slot) =>
+            slot.date === formattedDate &&
+            slot.timeSlots.includes(formattedTime),
+        )
+      ) {
+        throw new HttpException(
+          'The selected date and time slot is not available.',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+
+      const updatedAppointment = this.appointmentsRepository.merge(
+        appointment,
+        { ...updateAppointmentDto, date: utcDate, time: utcTime },
+      );
+
+      return this.appointmentsRepository.save(updatedAppointment);
+    }
+
+    const updatedAppointment = this.appointmentsRepository.merge(
+      appointment,
+      updateAppointmentDto,
+    );
+
+    await this.appointmentsRepository.save(updatedAppointment);
+
+    return updatedAppointment;
   }
 }
