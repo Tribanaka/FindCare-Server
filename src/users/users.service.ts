@@ -4,8 +4,7 @@ import { User } from './user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { hashSync } from 'bcrypt';
-import { PaginationDto, PaginationOptionsDto } from 'src/pagination/dto';
-import paginate from 'src/pagination';
+import paginate, { PaginationDto, PaginationOptionsDto } from 'src/pagination';
 
 @Injectable()
 export class UsersService {
