@@ -19,8 +19,11 @@ export class AppointmentsController {
   }
 
   @Get('users/:userId')
-  findPatientAppointments(@Param('userId') userId: number) {
-    return this.appointmentsService.findByUser(userId);
+  findPatientAppointments(
+    @Param('userId') userId: number,
+    @Query() paginationOptionsDto: PaginationOptionsDto,
+  ) {
+    return this.appointmentsService.findByUser(userId, paginationOptionsDto);
   }
   @Post()
   create(@Body() createAppointmentDto: CreateAppointmentDto) {

@@ -131,17 +131,22 @@ export class AppointmentsService {
     return newAppointment;
   }
 
-  async findByUser(userId: number) {
+  async findByUser(userId: number, paginationOptionsDto: PaginationOptionsDto) {
+    if (!userId) throw new BadRequestException("Please input User's ID");
+
     const user = await this.usersService.findById(userId);
 
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-
-    return this.appointmentsRepository.find({
-      where: { user },
-      relations: ['practitioner'],
-    });
+    const query = this.appointmentsRepository.createQueryBuilder('appointment');
+    query
+      .leftJoinAndSelect('appointment.practitioner', 'practitioner')
+      .leftJoinAndSelect('appointment.user', 'user')
+      .where('user.id = :userId', {
+        userId: user.id,
+      });
+    return paginate(query, 'appointment.id', paginationOptionsDto);
   }
 
   async findByPractitioner(
