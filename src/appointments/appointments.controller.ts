@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { PaginationOptionsDto } from 'src/pagination';
 
 @Controller('appointments')
 export class AppointmentsController {
@@ -9,8 +10,12 @@ export class AppointmentsController {
   @Get('practitioners/:practitionerId')
   findPractitionerAppointments(
     @Param('practitionerId') practitionerId: number,
+    @Query() paginationOptionsDto: PaginationOptionsDto,
   ) {
-    return this.appointmentsService.findByPractitioner(practitionerId);
+    return this.appointmentsService.findByPractitioner(
+      practitionerId,
+      paginationOptionsDto,
+    );
   }
 
   @Get('users/:userId')

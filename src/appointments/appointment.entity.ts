@@ -1,5 +1,4 @@
 import { Practitioner } from 'src/practitioners/practitioner.entity';
-import { Schedule } from 'src/schedules/schedule.entity';
 import { User } from 'src/users/user.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
@@ -9,7 +8,7 @@ export enum AppointmentStatus {
   COMPELETED = 'completed',
 }
 
-@Entity()
+@Entity('appointment')
 export class Appointment {
   @PrimaryGeneratedColumn()
   id: number;
