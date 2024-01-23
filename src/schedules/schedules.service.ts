@@ -197,8 +197,6 @@ export class SchedulesService {
           );
           if (!appointment && start.isAfter(moment())) {
             timeSlots.push(start.format('HH:mm'));
-          } else {
-            console.log(appointment);
           }
 
           start.add(30, 'minutes');

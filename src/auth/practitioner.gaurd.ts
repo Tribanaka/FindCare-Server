@@ -27,11 +27,12 @@ export class PractitionerGuard implements CanActivate {
     try {
       const payload = await this.jwtService.verifyAsync(token);
 
-      const user = await this.practitionersService.findByEmailWithoutPassword(
-        payload.email,
-      );
+      const practitioner =
+        await this.practitionersService.findByEmailWithoutPassword(
+          payload.email,
+        );
 
-      request['user'] = { user };
+      request['practitioner'] = { ...practitioner };
     } catch (error) {
       throw new UnauthorizedException();
     }
