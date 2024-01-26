@@ -1,5 +1,5 @@
 import { IsOptional, IsString } from 'class-validator';
-import { PaginationOptionsDto } from 'src/pagination/dto';
+import { PaginationOptionsDto } from 'src/pagination';
 export class FindHospitalsDto extends PaginationOptionsDto {
   @IsOptional()
   @IsString()

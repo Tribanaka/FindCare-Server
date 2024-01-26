@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   Patch,
   UseGuards,
   Req,
@@ -11,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
+import { PaginationOptionsDto } from 'src/pagination';
 import { PractitionerGuard } from 'src/auth/practitioner.gaurd';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
@@ -23,14 +25,21 @@ export class AppointmentsController {
   @Get('practitioners/:practitionerId')
   findPractitionerAppointments(
     @Param('practitionerId') practitionerId: number,
+    @Query() paginationOptionsDto: PaginationOptionsDto,
   ) {
-    return this.appointmentsService.findByPractitioner(practitionerId);
+    return this.appointmentsService.findByPractitioner(
+      practitionerId,
+      paginationOptionsDto,
+    );
   }
 
   @UseGuards(AuthGuard)
   @Get('users/:userId')
-  findPatientAppointments(@Param('userId') userId: number) {
-    return this.appointmentsService.findByUser(userId);
+  findPatientAppointments(
+    @Param('userId') userId: number,
+    @Query() paginationOptionsDto: PaginationOptionsDto,
+  ) {
+    return this.appointmentsService.findByUser(userId, paginationOptionsDto);
   }
 
   @UseGuards(AuthGuard)

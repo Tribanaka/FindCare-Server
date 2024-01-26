@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Inject,
@@ -16,6 +17,7 @@ import { UsersService } from 'src/users/users.service';
 import { SchedulesService } from 'src/schedules/schedules.service';
 import * as moment from 'moment-timezone';
 import { Practitioner } from 'src/practitioners/practitioner.entity';
+import paginate, { PaginationOptionsDto } from 'src/pagination';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 
 @Injectable()
@@ -132,20 +134,30 @@ export class AppointmentsService {
     return newAppointment;
   }
 
-  async findByUser(userId: number) {
+  async findByUser(userId: number, paginationOptionsDto: PaginationOptionsDto) {
+    if (!userId) throw new BadRequestException("Please input User's ID");
+
     const user = await this.usersService.findById(userId);
 
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
-
-    return this.appointmentsRepository.find({
-      where: { user },
-      relations: ['practitioner'],
-    });
+    const query = this.appointmentsRepository.createQueryBuilder('appointment');
+    query
+      .leftJoinAndSelect('appointment.practitioner', 'practitioner')
+      .leftJoinAndSelect('appointment.user', 'user')
+      .where('user.id = :userId', {
+        userId: user.id,
+      });
+    return paginate(query, 'appointment.id', paginationOptionsDto);
   }
 
-  async findByPractitioner(practitionerId: number) {
+  async findByPractitioner(
+    practitionerId: number,
+    paginationOptionsDto: PaginationOptionsDto,
+  ) {
+    if (!practitionerId)
+      throw new BadRequestException("Please input Practitioner's ID");
     const practitioner =
       await this.practitionersService.findById(practitionerId);
 
@@ -153,10 +165,15 @@ export class AppointmentsService {
       throw new HttpException('Practitioner not found', HttpStatus.NOT_FOUND);
     }
 
-    return this.appointmentsRepository.find({
-      where: { practitioner },
-      relations: ['user'],
-    });
+    // Create Query Builder
+    const query = this.appointmentsRepository.createQueryBuilder('appointment');
+    query
+      .leftJoinAndSelect('appointment.practitioner', 'practitioner')
+      .leftJoinAndSelect('appointment.user', 'user')
+      .where('practitioner.id = :practitionerId', {
+        practitionerId: practitioner.id,
+      });
+    return paginate(query, 'appointment.id', paginationOptionsDto);
   }
 
   async updateByPractitioner(
