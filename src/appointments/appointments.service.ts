@@ -4,12 +4,13 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Appointment } from './appointment.entity';
+import { Appointment, AppointmentStatus } from './appointment.entity';
 import { Repository } from 'typeorm';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { PractitionersService } from 'src/practitioners/practitioners.service';
@@ -19,6 +20,7 @@ import * as moment from 'moment-timezone';
 import { Practitioner } from 'src/practitioners/practitioner.entity';
 import paginate, { PaginationOptionsDto } from 'src/pagination';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class AppointmentsService {
@@ -30,6 +32,35 @@ export class AppointmentsService {
     @Inject(forwardRef(() => SchedulesService))
     private schedulesService: SchedulesService,
   ) {}
+
+  private readonly logger = new Logger(AppointmentsService.name);
+
+  @Cron('*/30 * * * *')
+  async handleCron() {
+    this.logger.debug('Called at every 30th Minute');
+
+    const now = moment().utc();
+
+    const pendingAppointments = await this.appointmentsRepository
+      .createQueryBuilder('appointment')
+      .where('appointment.status = :status', {
+        status: AppointmentStatus.PENDING,
+      })
+      .getMany();
+
+    for (const appointment of pendingAppointments) {
+      const appointmentTime = moment.utc(
+        `${appointment.date} ${appointment.time}`,
+        'YYYY-MM-DD HH:mm',
+      );
+
+      if (now.isAfter(appointmentTime)) {
+        // this.logger.debug(`${appointmentTime} ${now}`);
+        appointment.status = AppointmentStatus.MISSED;
+        await this.appointmentsRepository.save(appointment);
+      }
+    }
+  }
 
   findOne(practitioner: Practitioner, date: string, time: string) {
     return this.appointmentsRepository.findOneBy({ practitioner, date, time });
