@@ -4,12 +4,13 @@ import {
   HttpStatus,
   Inject,
   Injectable,
+  Logger,
   NotFoundException,
   UnauthorizedException,
   forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Appointment } from './appointment.entity';
+import { Appointment, AppointmentStatus } from './appointment.entity';
 import { Repository } from 'typeorm';
 import { CreateAppointmentDto } from './dto/create-appointment.dto';
 import { PractitionersService } from 'src/practitioners/practitioners.service';
@@ -17,8 +18,10 @@ import { UsersService } from 'src/users/users.service';
 import { SchedulesService } from 'src/schedules/schedules.service';
 import * as moment from 'moment-timezone';
 import { Practitioner } from 'src/practitioners/practitioner.entity';
-import paginate, { PaginationOptionsDto } from 'src/pagination';
+import paginate from 'src/pagination';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
+import { Cron } from '@nestjs/schedule';
+import { FindAppointmentDto } from './dto/find-appointment.dto';
 
 @Injectable()
 export class AppointmentsService {
@@ -30,6 +33,34 @@ export class AppointmentsService {
     @Inject(forwardRef(() => SchedulesService))
     private schedulesService: SchedulesService,
   ) {}
+
+  private readonly logger = new Logger(AppointmentsService.name);
+
+  @Cron('*/30 * * * *')
+  async handleCron() {
+    this.logger.debug('Called at every 30th Minute');
+
+    const now = moment().utc();
+
+    const pendingAppointments = await this.appointmentsRepository
+      .createQueryBuilder('appointment')
+      .where('appointment.status = :status', {
+        status: AppointmentStatus.PENDING,
+      })
+      .getMany();
+
+    for (const appointment of pendingAppointments) {
+      const appointmentTime = moment.utc(
+        `${appointment.date} ${appointment.time}`,
+        'YYYY-MM-DD HH:mm',
+      );
+
+      if (now.isAfter(appointmentTime)) {
+        appointment.status = AppointmentStatus.MISSED;
+        await this.appointmentsRepository.save(appointment);
+      }
+    }
+  }
 
   findOne(practitioner: Practitioner, date: string, time: string) {
     return this.appointmentsRepository.findOneBy({ practitioner, date, time });
@@ -134,7 +165,7 @@ export class AppointmentsService {
     return newAppointment;
   }
 
-  async findByUser(userId: number, paginationOptionsDto: PaginationOptionsDto) {
+  async findByUser(userId: number, findApppointmentDto: FindAppointmentDto) {
     if (!userId) throw new BadRequestException("Please input User's ID");
 
     const user = await this.usersService.findById(userId);
@@ -142,19 +173,29 @@ export class AppointmentsService {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
+
+    const { status, skip, ...paginateOption } = findApppointmentDto;
+
     const query = this.appointmentsRepository.createQueryBuilder('appointment');
+
     query
       .leftJoinAndSelect('appointment.practitioner', 'practitioner')
       .leftJoinAndSelect('appointment.user', 'user')
       .where('user.id = :userId', {
         userId: user.id,
       });
-    return paginate(query, 'appointment.id', paginationOptionsDto);
+
+    if (status) {
+      query.andWhere('appointment.status = :status', {
+        status,
+      });
+    }
+    return paginate(query, 'appointment.id', { ...paginateOption, skip });
   }
 
   async findByPractitioner(
     practitionerId: number,
-    paginationOptionsDto: PaginationOptionsDto,
+    findApppointmentDto: FindAppointmentDto,
   ) {
     if (!practitionerId)
       throw new BadRequestException("Please input Practitioner's ID");
@@ -165,6 +206,8 @@ export class AppointmentsService {
       throw new HttpException('Practitioner not found', HttpStatus.NOT_FOUND);
     }
 
+    const { status, skip, ...paginateOption } = findApppointmentDto;
+
     // Create Query Builder
     const query = this.appointmentsRepository.createQueryBuilder('appointment');
     query
@@ -173,7 +216,14 @@ export class AppointmentsService {
       .where('practitioner.id = :practitionerId', {
         practitionerId: practitioner.id,
       });
-    return paginate(query, 'appointment.id', paginationOptionsDto);
+
+    if (status) {
+      query.andWhere('appointment.status = :status', {
+        status,
+      });
+    }
+
+    return paginate(query, 'appointment.id', { ...paginateOption, skip });
   }
 
   async updateByPractitioner(

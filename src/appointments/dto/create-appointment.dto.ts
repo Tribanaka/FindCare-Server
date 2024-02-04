@@ -19,6 +19,7 @@ export class CreateAppointmentDto {
     AppointmentStatus.PENDING,
     AppointmentStatus.CANCELLED,
     AppointmentStatus.COMPELETED,
+    AppointmentStatus.MISSED,
   ])
   status: AppointmentStatus;
 
