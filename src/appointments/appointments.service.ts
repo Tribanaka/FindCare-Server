@@ -18,9 +18,10 @@ import { UsersService } from 'src/users/users.service';
 import { SchedulesService } from 'src/schedules/schedules.service';
 import * as moment from 'moment-timezone';
 import { Practitioner } from 'src/practitioners/practitioner.entity';
-import paginate, { PaginationOptionsDto } from 'src/pagination';
+import paginate from 'src/pagination';
 import { UpdateAppointmentDto } from './dto/update-appointment.dto';
 import { Cron } from '@nestjs/schedule';
+import { FindAppointmentDto } from './dto/find-appointment.dto';
 
 @Injectable()
 export class AppointmentsService {
@@ -55,7 +56,6 @@ export class AppointmentsService {
       );
 
       if (now.isAfter(appointmentTime)) {
-        // this.logger.debug(`${appointmentTime} ${now}`);
         appointment.status = AppointmentStatus.MISSED;
         await this.appointmentsRepository.save(appointment);
       }
@@ -165,7 +165,7 @@ export class AppointmentsService {
     return newAppointment;
   }
 
-  async findByUser(userId: number, paginationOptionsDto: PaginationOptionsDto) {
+  async findByUser(userId: number, findApppointmentDto: FindAppointmentDto) {
     if (!userId) throw new BadRequestException("Please input User's ID");
 
     const user = await this.usersService.findById(userId);
@@ -173,19 +173,29 @@ export class AppointmentsService {
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
+
+    const { status, skip, ...paginateOption } = findApppointmentDto;
+
     const query = this.appointmentsRepository.createQueryBuilder('appointment');
+
     query
       .leftJoinAndSelect('appointment.practitioner', 'practitioner')
       .leftJoinAndSelect('appointment.user', 'user')
       .where('user.id = :userId', {
         userId: user.id,
       });
-    return paginate(query, 'appointment.id', paginationOptionsDto);
+
+    if (status) {
+      query.andWhere('appointment.status = :status', {
+        status,
+      });
+    }
+    return paginate(query, 'appointment.id', { ...paginateOption, skip });
   }
 
   async findByPractitioner(
     practitionerId: number,
-    paginationOptionsDto: PaginationOptionsDto,
+    findApppointmentDto: FindAppointmentDto,
   ) {
     if (!practitionerId)
       throw new BadRequestException("Please input Practitioner's ID");
@@ -196,6 +206,8 @@ export class AppointmentsService {
       throw new HttpException('Practitioner not found', HttpStatus.NOT_FOUND);
     }
 
+    const { status, skip, ...paginateOption } = findApppointmentDto;
+
     // Create Query Builder
     const query = this.appointmentsRepository.createQueryBuilder('appointment');
     query
@@ -204,7 +216,14 @@ export class AppointmentsService {
       .where('practitioner.id = :practitionerId', {
         practitionerId: practitioner.id,
       });
-    return paginate(query, 'appointment.id', paginationOptionsDto);
+
+    if (status) {
+      query.andWhere('appointment.status = :status', {
+        status,
+      });
+    }
+
+    return paginate(query, 'appointment.id', { ...paginateOption, skip });
   }
 
   async updateByPractitioner(
