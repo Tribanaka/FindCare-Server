@@ -151,6 +151,12 @@ export class SchedulesService {
     // Create a date object for today's date
     let currentDate = moment.tz(moment().format('YYYY-MM-DD'), timeZone);
 
+    const utcDate = moment().utc().format('YYYY-MM-DD');
+    const appointments = await this.appointmentsServices.findAll(
+      practitioner,
+      utcDate,
+    );
+
     // Create an array to store the slots
     let slots = [];
 
@@ -189,13 +195,20 @@ export class SchedulesService {
           const utcTime = start.clone().utc().format('HH:mm');
           const utcDate = start.clone().utc().format('YYYY-MM-DD');
 
-          // Check if an appointment already exists at this time
-          const appointment = await this.appointmentsServices.findOne(
-            practitioner,
-            utcDate,
-            utcTime,
+          // Check if an appointment already exists at this time using a database call
+          // const appointment = await this.appointmentsServices.findOne(
+          //   practitioner,
+          //   utcDate,
+          //   utcTime,
+          // );
+
+          // Check if an appointment already exists at this time using searching an array
+          const appointmentExist = appointments.some(
+            (appointment) =>
+              appointment.date === utcDate && appointment.time === utcTime,
           );
-          if (!appointment && start.isAfter(moment())) {
+
+          if (!appointmentExist && start.isAfter(moment())) {
             timeSlots.push(start.format('HH:mm'));
           }
 

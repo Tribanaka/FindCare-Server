@@ -66,6 +66,13 @@ export class AppointmentsService {
     return this.appointmentsRepository.findOneBy({ practitioner, date, time });
   }
 
+  findAll(practitioner: Practitioner, date: string, time?: string) {
+    return this.appointmentsRepository
+      .createQueryBuilder('appointment')
+      .where('appointment.date >= :startDate', { startDate: date })
+      .getMany();
+  }
+
   async createAppointment(
     createAppointmentDto: CreateAppointmentDto,
   ): Promise<Appointment> {
