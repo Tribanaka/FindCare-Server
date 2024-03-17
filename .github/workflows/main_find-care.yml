@@ -21,7 +21,7 @@ jobs:
         with:
           node-version: '18.x'
 
-      - name: pnpm-setup # Add this step to set up pnpm
+      - name: pnpm-setup
         uses: pnpm/action-setup@v3
         with:
           version: 8
